@@ -1,0 +1,34 @@
+name: Run Script
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: main-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: pip install -r requirements.txt
+      - name: Run script
+        id: run
+        run: |
+          set +e
+          timeout 21000 python main.py
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Restart
+        if: steps.run.outputs.code == '124'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run run.yml

@@ -24,7 +24,7 @@ jobs:
         id: run
         run: |
           set +e
-          timeout 21000 python main.py
+          timeout 21000 python -u main.py
           echo "code=$?" >> "$GITHUB_OUTPUT"
           exit 0
       - name: Restart
